@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cuota · préstamos y ahorro en bolivianos</title>
+  <meta name="description" content="Calcula tu préstamo con sistema francés, alemán o americano, su costo real (TCEA) con seguro y comisiones, y planifica tu ahorro con aportes flexibles.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23103b3a'/%3E%3Cpath d='M8 22h4v-6H8zM14 22h4V11h-4zM20 22h4V7h-4z' fill='%23f2b134'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap top-in">
+      <div class="brand"><span class="mark"><i></i><i></i><i></i></span>Cuota</div>
+      <nav class="tabs" role="tablist">
+        <button role="tab" data-tab="prestamo" class="on">Préstamo</button>
+        <button role="tab" data-tab="ahorro">Ahorro</button>
+      </nav>
+      <button id="theme" class="icon" aria-label="Cambiar tema">◐</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- PRÉSTAMO -->
+    <section id="prestamo" class="tab-pane">
+      <div class="layout">
+        <form class="card form" id="f-loan" autocomplete="off">
+          <h2>Tu préstamo</h2>
+          <label>Monto <div class="in"><span>Bs</span><input name="P" type="number" min="100" step="100" value="70000"></div></label>
+          <label>Tasa anual <div class="in"><input name="tasa" type="number" min="0" max="200" step="0.01" value="11.5"><span>%</span></div></label>
+          <div class="seg" role="radiogroup" aria-label="Tipo de tasa">
+            <label><input type="radio" name="tipo" value="efectiva" checked><span>Efectiva (TEA)</span></label>
+            <label><input type="radio" name="tipo" value="nominal"><span>Nominal</span></label>
+          </div>
+          <label>Plazo <div class="in"><input name="n" type="number" min="1" max="480" value="60"><span>meses</span></div></label>
+          <details>
+            <summary>Seguro, comisión y gracia</summary>
+            <label>Seguro de desgravamen <div class="in"><input name="seguro" type="number" min="0" step="0.001" value="0.035"><span>% mensual del saldo</span></div></label>
+            <label>Comisión por cuota <div class="in"><span>Bs</span><input name="comision" type="number" min="0" step="1" value="0"></div></label>
+            <label>Meses de gracia <div class="in"><input name="gracia" type="number" min="0" max="36" value="0"><span>solo intereses</span></div></label>
+          </details>
+          <p class="hint">Tasa mensual equivalente: <b id="im"></b></p>
+        </form>
+
+        <div class="results">
+          <div id="sys-cards" class="sys-cards"></div>
+          <div class="card">
+            <div class="card-h"><h3 id="chart-title">Cómo se reparte cada cuota</h3>
+              <div class="legend"><i class="l-am"></i>Capital <i class="l-in"></i>Interés <i class="l-se"></i>Seguro y comisión <i class="l-sa"></i>Saldo</div></div>
+            <div id="loan-chart"></div>
+          </div>
+          <div class="card">
+            <div class="card-h"><h3>Tabla de amortización</h3>
+              <div class="actions"><button id="csv" class="ghost">Descargar CSV (Excel)</button><button id="print" class="ghost">Imprimir</button></div></div>
+            <div class="table-wrap"><table id="table"></table></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AHORRO -->
+    <section id="ahorro" class="tab-pane" hidden>
+      <div class="layout">
+        <form class="card form" id="f-save" autocomplete="off">
+          <h2>Tu meta de ahorro</h2>
+          <label>Meta <div class="in"><span>Bs</span><input name="meta" type="number" min="100" step="100" value="20000"></div></label>
+          <label>Plazo <div class="in"><input name="n" type="number" min="1" max="480" value="24"><span>meses</span></div></label>
+          <label>Tasa de tu caja de ahorro o DPF <div class="in"><input name="tasa" type="number" min="0" max="50" step="0.01" value="4"><span>% anual</span></div></label>
+          <label>Ya tienes <div class="in"><span>Bs</span><input name="inicial" type="number" min="0" step="100" value="1000"></div></label>
+          <h3 class="sub">Aportes flexibles</h3>
+          <label>Meses sin aportar <div class="in"><input name="saltos" type="text" value="6, 7" placeholder="ej. 6, 7"><span>nº de mes</span></div></label>
+          <label>Extra en diciembre (aguinaldo) <div class="in"><span>Bs</span><input name="extra" type="number" min="0" step="50" value="1500"></div></label>
+          <label>Empiezas en <select name="mesInicio"></select></label>
+        </form>
+
+        <div class="results">
+          <div class="card hero-save">
+            <p>Para llegar a <b id="s-meta"></b> necesitas ahorrar</p>
+            <div class="big" id="s-aporte"></div>
+            <p class="dim" id="s-note"></p>
+          </div>
+          <div class="kpis" id="s-kpis"></div>
+          <div class="card">
+            <div class="card-h"><h3>Cómo crece tu ahorro</h3><div class="legend"><i class="l-ap"></i>Lo que pones <i class="l-in"></i>Intereses <i class="l-meta"></i>Meta</div></div>
+            <div id="save-chart"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot wrap">Hecho por <a href="https://github.com/NeckHurtttt">NeckHurtttt</a> · Matemática Financiera I · UPSA · <a href="https://github.com/NeckHurtttt/cuota">código</a><br><small>Herramienta educativa: confirma siempre las condiciones con tu entidad financiera.</small></footer>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
